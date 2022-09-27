@@ -30,6 +30,12 @@ dependencies {
     compileOnly 'org.immutables:value:2.9.2'
 
     implementation 'org.apache.commons:commons-collections4:4.1'
+
+    // Leshan
+    implementation 'org.eclipse.leshan:leshan-client-cf:2.0.0-M8'
+    implementation 'org.eclipse.leshan:leshan-server-cf:2.0.0-M8'
+    implementation 'org.slf4j:slf4j-simple:1.7.30'
+
 }
 
 
