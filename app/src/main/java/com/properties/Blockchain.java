@@ -1,4 +1,7 @@
 package com.properties;
 
-public class Blockchain {
+import java.util.LinkedList;
+
+public class Blockchain extends LinkedList<Block> {
+    
 }
