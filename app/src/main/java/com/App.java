@@ -3,6 +3,11 @@
  */
 package com;
 
+import org.eclipse.leshan.client.californium.LeshanClient;
+import org.eclipse.leshan.client.californium.LeshanClientBuilder;
+import org.eclipse.leshan.server.californium.LeshanServer;
+import org.eclipse.leshan.server.californium.LeshanServerBuilder;
+
 public class App {
     public String getGreeting() {
         return "Hello World!";
@@ -10,5 +15,19 @@ public class App {
 
     public static void main(String[] args) {
         System.out.println(new App().getGreeting());
+
+        String clientEndpoint = "Poutsa";
+        LeshanClientBuilder clientBuilder = new LeshanClientBuilder(clientEndpoint);
+        LeshanClient client = clientBuilder.build();
+        client.start();
+
+        System.out.println("Client up!");
+
+        LeshanServerBuilder serverBuilder = new LeshanServerBuilder();
+        LeshanServer server = serverBuilder.build();
+        server.start();
+
+        System.out.println("Server up!");
+
     }
 }
