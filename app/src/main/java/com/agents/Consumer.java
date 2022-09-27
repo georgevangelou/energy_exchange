@@ -2,10 +2,7 @@ package com.agents;
 
 import com.properties.*;
 
-/**
- * @author Georgios Evangelou
- * Created on: 2022-09-27
- */
+
 public class Consumer {
     private Status status;
     private BidTransactionBlock bidTransactionBlock;
@@ -16,5 +13,6 @@ public class Consumer {
     private Battery battery;
 
     public Consumer() {
+
     }
 }

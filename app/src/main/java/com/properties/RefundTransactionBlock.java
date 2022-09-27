@@ -1,9 +1,6 @@
 package com.properties;
 
-/**
- * @author Georgios Evangelou
- * Created on: 2022-09-27
- */
+
 public class RefundTransactionBlock {
     //Refund transaction block: LWM2M object
     private String hash;

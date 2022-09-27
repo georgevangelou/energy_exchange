@@ -1,9 +1,6 @@
 package com.properties;
 
-/**
- * @author Georgios Evangelou
- * Created on: 2022-09-27
- */
+
 public class SmartContractBlock extends Block {
     private String smartContractAddress;
     private String functions;
