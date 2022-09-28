@@ -1,6 +1,10 @@
 package com.properties;
 
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import org.apache.logging.log4j.core.util.JsonUtils;
+
 public abstract class Block {
     private String blockHash;
     private String previousBlockHash;
@@ -14,5 +18,10 @@ public abstract class Block {
         this.hashDifficulty = hashDifficulty;
         this.timestamp = timestamp;
         this.index = index;
+    }
+
+    public String toJson() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
     }
 }
