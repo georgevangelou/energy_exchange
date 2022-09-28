@@ -14,8 +14,9 @@ public class MasterClientServer {
         System.out.println(arrayOfNodes.get(1).getPort());
         while (true) {
             arrayOfNodes.get(0).sendRequest("localhost", arrayOfNodes.get(1).getPort());
-            Thread.sleep(100);
+            Thread.sleep(500);
             arrayOfNodes.get(1).sendRequest("localhost", arrayOfNodes.get(0).getPort());
+            Thread.sleep(500);
         }
     }
 

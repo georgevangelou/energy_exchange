@@ -47,6 +47,7 @@ public class PeerNode {
             this.server = new ServerSocket(this.port);
             this.port = server.getLocalPort();
             System.out.println("listening on port " + this.port);
+            acceptRequests();
         } catch (Exception e) {
             e.printStackTrace();
         }
