@@ -34,7 +34,7 @@ public class PeerNode {
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
         System.out.println("This is my port: " + this.port);
         System.out.println("Sending to port: " + targetPort);
-        out.println("Tha ginei ston");
+        out.println("Test to send");
 //        sendRequest("localhost", arrayOfNodes.get(0).getPort())
 
         out.close();
@@ -61,13 +61,13 @@ public class PeerNode {
 
                 // Construct an object to process the HTTP request message.
                 HttpRequestHandler request = new HttpRequestHandler(connection);
-
+                System.out.println(new String(request.socket.getInputStream().readAllBytes()));
                 // Create a new thread to process the request.
-                Thread thread = new Thread(request);
+//                Thread thread = new Thread(request);
 
                 // Start the thread.
-                thread.start();
-                System.out.println("Thread started for " + this.port);
+//                thread.start();
+//                System.out.println("Thread started for " + this.port);
             }
         } catch (Exception e) {
             e.printStackTrace();
