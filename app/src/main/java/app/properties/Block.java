@@ -10,6 +10,7 @@ public abstract class Block {
     private long timestamp;
     private int index;
 
+
     public Block(String blockHash, String previousBlockHash, int hashDifficulty, long timestamp, int index) {
         this.blockHash = blockHash;
         this.previousBlockHash = previousBlockHash;
@@ -21,5 +22,26 @@ public abstract class Block {
     public String toJson() {
         Gson gson = new Gson();
         return gson.toJson(this);
+    }
+
+
+    public String getBlockHash() {
+        return blockHash;
+    }
+
+    public String getPreviousBlockHash() {
+        return previousBlockHash;
+    }
+
+    public int getHashDifficulty() {
+        return hashDifficulty;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public int getIndex() {
+        return index;
     }
 }
