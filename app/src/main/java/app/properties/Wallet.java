@@ -1,14 +1,17 @@
 package app.properties;
 
+import app.utilities.UUIDGenerator;
+
 public class Wallet {
     private int coinBalance;
     private String publicKey;
+    private String privateKey;
 
-    public Wallet(int coinBalance, String publicKey, String privateKey) {
-        this.coinBalance = coinBalance;
-        this.publicKey = publicKey;
-        this.privateKey = privateKey;
+
+    public Wallet() {
+        this.coinBalance = 0;
+        this.publicKey = UUIDGenerator.generateUUID();
+        this.privateKey = UUIDGenerator.generateUUID();
     }
 
-    private String privateKey;
 }

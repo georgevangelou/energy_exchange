@@ -1,26 +1,28 @@
 package app.agents;
 
 import app.properties.*;
+import app.utilities.UUIDGenerator;
 
 import java.util.Random;
 
 
+/**
+ * Functionality:
+ * o   Generate expected energy production
+ * o   Generate energy unit price required to make profit
+ * o   Update stored blockchain (i.e., replace chain)
+ * o   Submit energy offer to smart contract
+ */
 public class Producer {
-    //Functionality
-    //o   Generate expected energy production
-    //o   Generate energy unit price required to make profit
-    //o   Update stored blockchain (i.e., replace chain)
-    //o   Submit energy offer to smart contract
-
+    private Random random = new Random();
     private Status status;
     private Offer offer;
-    private Blockchain blockchain;
-    private RecentActivity recentActivity;
+    private Blockchain blockchain = new Blockchain();
+    private RecentActivity recentActivity = new RecentActivity();
     private Activity activity;
-    private Wallet wallet;
-    private Battery battery;
+    private Wallet wallet = new Wallet(); // Let's have them, right for now
+    private Battery battery = new Battery(random.nextInt(), random.nextInt());
 
-    private Random random = new Random();
 
     public Producer() {
     }
