@@ -2,8 +2,6 @@ package app.properties;
 
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.apache.logging.log4j.core.util.JsonUtils;
 
 public abstract class Block {
     private String blockHash;

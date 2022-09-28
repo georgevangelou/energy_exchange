@@ -1,7 +1,6 @@
 package app.agents;
 
 import app.properties.*;
-import com.properties.*;
 
 
 public class Consumer {

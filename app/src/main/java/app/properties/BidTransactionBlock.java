@@ -1,7 +1,7 @@
 package app.properties;
 
 
-public class BidTransactionBlock extends Block{
+public class BidTransactionBlock extends Block {
     private String receiverAddress;
     private String publicKeySender;
     private String publicKeyReceiver;
