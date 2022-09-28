@@ -16,7 +16,7 @@ public abstract class Block {
 
     public Block(String previousBlockHash, int hashDifficulty, int index) {
         this.previousBlockHash = previousBlockHash;
-        this.hashDifficulty = hashDifficulty;
+        this.hashDifficulty = hashDifficulty; // TODO: we should calculate it somehow
         this.timestamp = new Date().getTime();
         this.index = index;
         this.hash = hash();

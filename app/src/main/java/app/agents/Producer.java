@@ -1,8 +1,9 @@
 package app.agents;
 
 import app.properties.*;
-import app.utilities.UUIDGenerator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -14,17 +15,34 @@ import java.util.Random;
  * o   Submit energy offer to smart contract
  */
 public class Producer {
+    private List<String> portsOfOtherPeers = new ArrayList<>();//TODO: Get somehow
     private Random random = new Random();
-    private Status status;
-    private Offer offer;
-    private Blockchain blockchain = new Blockchain();
+
     private RecentActivity recentActivity = new RecentActivity();
-    private Activity activity;
+    private Blockchain blockchain = new Blockchain();
     private Wallet wallet = new Wallet(); // Let's have them, right for now
     private Battery battery = new Battery(random.nextInt(), random.nextInt());
+    private Status status;
+    private Offer offer;
+    private Activity activity;
 
 
     public Producer() {
+        blockchain.add(new BidTransactionBlock(
+                "0",
+                0,
+                0,
+                "0",
+                "0",
+                "0",
+                0,
+                0,
+                0,
+                new byte[0])
+        );
+
+        this.status = new Status(0);
+        updateStoredBlockChain();
     }
 
 
@@ -43,18 +61,39 @@ public class Producer {
         return energyUnitPrice;
     }
 
-    private synchronized void updateStoredBlockChain() {
-        Block receivedBlock = null;
-
-        if (receivedBlock.getHashDifficulty() > this.blockchain.peekLast().getHashDifficulty()) {
-            this.blockchain.removeLast();
-            this.blockchain.add(receivedBlock);
+    private void updateStoredBlockChain() {
+        for (String peerPort : portsOfOtherPeers) {
+            Status statusOfOtherPeer = askOtherPeerForStatus(peerPort);
+            if (statusOfOtherPeer.getTotalHashDifficulty() > this.status.getTotalHashDifficulty()) {
+                Blockchain otherPeerBlockchain = askOtherPeerForBlockchain(peerPort);
+                if (otherPeerBlockchain.isValid()) {
+                    this.blockchain = otherPeerBlockchain;
+                    this.status = new Status(this.blockchain.getLast().getHashDifficulty());
+                }
+            }
         }
     }
+
+
+    private Status askOtherPeerForStatus(String portOfPeerToAsk) {
+        //TODO: iterate through the peers and ask them for their statuses
+        return null;
+    }
+
+    private Blockchain askOtherPeerForBlockchain(String portOfPeerToAsk) {
+        //TODO: ask peer for blockchain
+        //TODO: Deserialize it
+        return null;
+    }
+
 
     private void submitEnergyOfferToSmartContract() {
         int expectedEnergyProduction = generateExpectedEnergyProduction();
         int energyUnitPrice = generateEnergyUnitPrice();
         // TODO: pack and send
+    }
+
+    public Status getStatus() {
+        return status;
     }
 }

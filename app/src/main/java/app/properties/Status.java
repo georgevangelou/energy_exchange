@@ -6,4 +6,8 @@ public class Status {
     public Status(int totalHashDifficulty) {
         this.totalHashDifficulty = totalHashDifficulty;
     }
+
+    public int getTotalHashDifficulty() {
+        return totalHashDifficulty;
+    }
 }
