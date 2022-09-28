@@ -55,4 +55,8 @@ public abstract class Block {
     public int getIndex() {
         return index;
     }
+
+    public boolean isValid(){
+        return true;// TODO
+    }
 }

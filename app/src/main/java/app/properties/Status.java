@@ -10,4 +10,8 @@ public class Status {
     public int getTotalHashDifficulty() {
         return totalHashDifficulty;
     }
+
+    public void setTotalHashDifficulty(int totalHashDifficulty) {
+        this.totalHashDifficulty = totalHashDifficulty;
+    }
 }
