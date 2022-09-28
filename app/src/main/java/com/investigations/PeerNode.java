@@ -29,11 +29,12 @@ public class PeerNode {
     }
 
 
-    public void sendRequest(String host, int port) throws UnknownHostException, IOException {
-        Socket socket = new Socket(host, port);//machine name, port number
+    public void sendRequest(String host, int targetPort) throws UnknownHostException, IOException {
+        Socket socket = new Socket(host, targetPort);//machine name, port number
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-//        out.println(fileName);
-        System.out.println("Sending to port: " + port);
+        System.out.println("This is my port: " + this.port);
+        System.out.println("Sending to port: " + targetPort);
+        out.println("Tha ginei ston");
 //        sendRequest("localhost", arrayOfNodes.get(0).getPort())
 
         out.close();
