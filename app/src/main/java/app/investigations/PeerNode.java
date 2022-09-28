@@ -1,10 +1,17 @@
 package app.investigations;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class PeerNode {
@@ -29,12 +36,15 @@ public class PeerNode {
     }
 
 
-    public void sendRequest(String host, int targetPort, String message) throws IOException {
+    public void sendRequest(String host, int targetPort, JsonObject json) throws IOException {
         Socket socket = new Socket(host, targetPort);//machine name, port number
-        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-        System.out.println("This is my port: " + this.port);
+        OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+        System.out.println("\nThis is my port: " + this.port);
         System.out.println("Sending to port: " + targetPort);
-        out.println(message);
+
+        String content = json.toString();
+        System.out.println("My content is: " + content);
+        out.write(content);
 //        sendRequest("localhost", arrayOfNodes.get(0).getPort())
 
         out.close();
@@ -61,7 +71,14 @@ public class PeerNode {
 
                 // Construct an object to process the HTTP request message.
                 HttpRequestHandler request = new HttpRequestHandler(connection);
-                System.out.println(new String(request.socket.getInputStream().readAllBytes()));
+                String content = new String(request.socket.getInputStream().readAllBytes());
+                JsonObject json = new JsonParser().parse(content).getAsJsonObject();
+
+                System.out.println("\nThis is my port: " + connection.getLocalPort());
+                System.out.println("Received from port: " + this.port);
+
+                System.out.println("I received type: " + json.get("type"));
+                System.out.println("I received index: " + json.get("index"));
                 // Create a new thread to process the request.
 //                Thread thread = new Thread(request);
 
