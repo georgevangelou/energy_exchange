@@ -10,8 +10,8 @@ public class BidTransactionBlock extends Block {
     private int requestedPricePerEnergyUnit;
     private byte[] signature;
 
-    public BidTransactionBlock(String blockHash, String previousBlockHash, int hashDifficulty, long timestamp, int index, String receiverAddress, String publicKeySender, String publicKeyReceiver, int coinAmount, int requestedEnergyAmount, int requestedPricePerEnergyUnit, byte[] signature) {
-        super(blockHash, previousBlockHash, hashDifficulty, timestamp, index);
+    public BidTransactionBlock(String previousBlockHash, int hashDifficulty, int index, String receiverAddress, String publicKeySender, String publicKeyReceiver, int coinAmount, int requestedEnergyAmount, int requestedPricePerEnergyUnit, byte[] signature) {
+        super(previousBlockHash, hashDifficulty, index);
         this.receiverAddress = receiverAddress;
         this.publicKeySender = publicKeySender;
         this.publicKeyReceiver = publicKeyReceiver;

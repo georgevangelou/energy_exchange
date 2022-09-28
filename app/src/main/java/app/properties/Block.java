@@ -1,22 +1,33 @@
 package app.properties;
 
 
+import app.utilities.StringUtil;
 import com.google.gson.Gson;
 
+import java.util.Date;
+
 public abstract class Block {
-    private String blockHash;
+    private String hash;
     private String previousBlockHash;
     private int hashDifficulty;
     private long timestamp;
     private int index;
 
 
-    public Block(String blockHash, String previousBlockHash, int hashDifficulty, long timestamp, int index) {
-        this.blockHash = blockHash;
+    public Block(String previousBlockHash, int hashDifficulty, int index) {
         this.previousBlockHash = previousBlockHash;
         this.hashDifficulty = hashDifficulty;
-        this.timestamp = timestamp;
+        this.timestamp = new Date().getTime();
         this.index = index;
+        this.hash = hash();
+    }
+
+    private String hash() {
+        return StringUtil.applySha256(
+                this.previousBlockHash +
+                        Long.toString(this.timestamp) +
+                        Integer.toString(this.index)
+        );
     }
 
     public String toJson() {
@@ -25,8 +36,8 @@ public abstract class Block {
     }
 
 
-    public String getBlockHash() {
-        return blockHash;
+    public String getHash() {
+        return this.hash;
     }
 
     public String getPreviousBlockHash() {

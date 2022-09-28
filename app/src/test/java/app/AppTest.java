@@ -16,9 +16,8 @@ public class AppTest {
 
     @Test public void printBlockJson() {
         Block a = new BidTransactionBlock(
-                "a blockHash",
                 "a previousBlockHash",
-                1, 2, 3,
+                1, 2,
                 "a receiverAddress",
                 "a publicKeySender",
                 "a publicKeyReceiver",
