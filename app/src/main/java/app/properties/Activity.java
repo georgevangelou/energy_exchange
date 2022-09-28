@@ -1,4 +1,4 @@
-package com.properties;
+package app.properties;
 
 public class Activity {
     private String activityHash;

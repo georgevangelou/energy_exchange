@@ -1,4 +1,4 @@
-package com.properties;
+package app.properties;
 
 import java.util.LinkedList;
 

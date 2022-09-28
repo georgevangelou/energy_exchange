@@ -1,18 +1,19 @@
-package com.agents;
+package app.agents;
 
+import app.properties.*;
 import com.properties.*;
 
 
-public class Producer {
+public class Consumer {
     private Status status;
-    private Offer offer;
+    private BidTransactionBlock bidTransactionBlock;
     private Blockchain blockchain;
     private RecentActivity recentActivity;
     private Activity activity;
     private Wallet wallet;
     private Battery battery;
 
-    public Producer() {
+    public Consumer() {
 
     }
 }

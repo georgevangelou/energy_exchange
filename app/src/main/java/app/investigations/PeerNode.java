@@ -1,4 +1,4 @@
-package com.investigations;
+package app.investigations;
 
 import java.io.IOException;
 import java.io.PrintWriter;

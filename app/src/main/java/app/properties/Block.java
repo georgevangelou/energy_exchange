@@ -1,4 +1,4 @@
-package com.properties;
+package app.properties;
 
 
 import com.google.gson.Gson;

@@ -1,4 +1,4 @@
-package com.properties;
+package app.properties;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
