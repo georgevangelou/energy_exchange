@@ -10,4 +10,6 @@ public class MessageType {
     public static final String PAY_BLOCK = "W04";
     public static final String REFUND_BLOCK = "W05";
     public static final String COIN_AMOUNT = "A01";
+
+    public static final String RESPONSE = "RE";
 }
