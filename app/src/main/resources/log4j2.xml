@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO">
+<Configuration status="WARN">
     <Appenders>
-        <Console name="STDOUT" target="SYSTEM_OUT">
+        <Console name="LogToConsole" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
+<!--        <RollingFile name="LogToFile" fileName="logs/run.log"-->
+<!--                     filePattern="logs/run.%d{yyyy-MM-dd_HH}.%i.log">-->
+<!--            <PatternLayout pattern="%d{yy.MM.dd-HH:mm:ss.SSS}[%p]%F(%L)%M-%m%n"/>-->
+<!--            <Policies>-->
+<!--                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>-->
+<!--                <OnStartupTriggeringPolicy/>-->
+<!--                <SizeBasedTriggeringPolicy size="20 MB"/>-->
+<!--            </Policies>-->
+<!--            <DefaultRolloverStrategy max="100"/>-->
+<!--        </RollingFile>-->
     </Appenders>
     <Loggers>
-        <Root level="info">
-            <AppenderRef ref="STDOUT"/>
+        <Root level="INFO">
+            <AppenderRef ref="LogToConsole"/>
+<!--            <AppenderRef ref="LogToFile"/>-->
         </Root>
     </Loggers>
 </Configuration>
