@@ -10,7 +10,7 @@ public class MasterPeerNode {
         ArrayList<PeerNode> arrayOfNodes = new ArrayList<>();
 
         for (int i = 1; i <= count; i++) {
-            arrayOfNodes.add(new PeerNode(port)); //providing port=0, will take any free port
+//            arrayOfNodes.add(new PeerNode(port)); //providing port=0, will take any free port
         }
         return arrayOfNodes;
     }
