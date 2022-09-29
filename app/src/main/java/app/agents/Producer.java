@@ -1,8 +1,8 @@
 package app.agents;
 
 import app.investigations.HttpRequestHandler;
-import app.messages.Message;
 import app.investigations.PeerNode;
+import app.messages.Message;
 import app.messages.MessageType;
 import app.properties.*;
 import app.utilities.UUIDGenerator;
@@ -27,7 +27,7 @@ import java.util.Random;
  * o   Submit energy offer to smart contract
  */
 public class Producer extends PeerNode {
-    private final Logger LOGGER = LoggerFactory.getLogger(PeerNode.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(Producer.class);
     private final long TIMEOUT = 10_000;
     private List<Integer> portsOfOtherPeers = new ArrayList<>();//TODO: Get somehow
     private Random random = new Random();
@@ -43,21 +43,22 @@ public class Producer extends PeerNode {
 
     public Producer(int port) {
         super(port);
-
-        blockchain.add(new BidTransactionBlock(
-                "0",
-                0,
-                0,
-                "0",
-                "0",
-                "0",
-                0,
-                0,
-                0,
-                new byte[0])
-        );
+//
+//        blockchain.add(new BidTransactionBlock(
+//                "0",
+//                0,
+//                0,
+//                "0",
+//                "0",
+//                "0",
+//                0,
+//                0,
+//                0,
+//                new byte[0])
+//        );
 
         this.status = new Status(0);
+        this.updateBlockChain();
     }
 
 
@@ -92,8 +93,7 @@ public class Producer extends PeerNode {
         if (statusOfOtherPeer.getTotalHashDifficulty() > this.status.getTotalHashDifficulty()) {
             Blockchain otherPeerBlockchain = askOtherPeerForBlockchain(peerPort);
             if (otherPeerBlockchain != null && otherPeerBlockchain.isValid()) {
-                this.blockchain = otherPeerBlockchain;
-                this.status = new Status(this.blockchain.getLast().getHashDifficulty());
+                replaceBlockchain(otherPeerBlockchain);
             }
         }
     }
@@ -111,7 +111,7 @@ public class Producer extends PeerNode {
                 return statusReceived;
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Exception thrown: ", e);
         }
         return null;
     }
@@ -157,7 +157,7 @@ public class Producer extends PeerNode {
                 return blockchainReceived;
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Exception thrown: ", e);
         }
         return null;
     }
@@ -179,13 +179,8 @@ public class Producer extends PeerNode {
             updateBlockChainFromPeer(peerPort);
         } else {
             if (block.isValid()) {
-                this.blockchain.add(block);
-                this.status.setTotalHashDifficulty(
-                        this.status.getTotalHashDifficulty() +
-                                block.getHashDifficulty()
-                );
+                addNewBlock(block);
                 this.recentActivity.add(new Activity(block.getHash(), peerAddress, Activity.DIRECTION.FROM));
-
             }
         }
     }
@@ -206,8 +201,8 @@ public class Producer extends PeerNode {
                 Gson gson = new Gson();
                 Message message = gson.fromJson(json, Message.class);
                 switch (message.getType()) {
-                    case MessageType.STATUS:
-                        String myStatus = gson.toJson(this.status, Status.class);
+                    case MessageType.STATUS: {
+                        String myStatus = gson.toJson(this.status);
                         String myMessage = new Message(
                                 message.getId()
                                 , MessageType.RESPONSE
@@ -215,12 +210,25 @@ public class Producer extends PeerNode {
                                 , this.getPort()).toJson();
                         sendMessage("localhost", message.getOriginPort(), myMessage);
                         break;
-                    case MessageType.RESPONSE:
+                    }
+                    case MessageType.BLOCKCHAIN: {
+                        String myBlockchain = gson.toJson(this.blockchain);
+                        String myMessage = new Message(
+                                message.getId()
+                                , MessageType.RESPONSE
+                                , myBlockchain
+                                , this.getPort()).toJson();
+                        sendMessage("localhost", message.getOriginPort(), myMessage);
+                        break;
+                    }
+                    case MessageType.RESPONSE: {
                         LOGGER.info("Received response: " + message.toJson());
                         break;
-                    default:
+                    }
+                    default: {
                         LOGGER.warn("Not implemented. Message: " + message.toJson());
                         break;
+                    }
                 }
                 // Create a new thread to process the request.
 //                Thread thread = new Thread(request);
@@ -233,9 +241,28 @@ public class Producer extends PeerNode {
     }
 
 
+    public void addNewBlock(Block block) {
+        this.blockchain.add(block);
+        this.status = new Status(
+                this.status.getTotalHashDifficulty()
+                        + block.getHashDifficulty()
+        );
+        if (this.blockchain.getDifficulty() != this.status.getTotalHashDifficulty()) {
+            throw new RuntimeException("Difficulties do not match");
+        }
+    }
+
+
+    public void replaceBlockchain(Blockchain newBlockchain) {
+        this.blockchain = newBlockchain;
+        this.status = new Status(this.blockchain.getDifficulty());
+    }
+
+
     public Status getStatus() {
         return status;
     }
+
 
     public List<Integer> getPortsOfOtherPeers() {
         return portsOfOtherPeers;

@@ -1,5 +1,8 @@
 package app.properties;
 
+/**
+ * This MUST always be updated as per the difficulty of the blockchain of its owner.
+ */
 public class Status {
     private int totalHashDifficulty;
 
@@ -9,9 +12,5 @@ public class Status {
 
     public int getTotalHashDifficulty() {
         return totalHashDifficulty;
-    }
-
-    public void setTotalHashDifficulty(int totalHashDifficulty) {
-        this.totalHashDifficulty = totalHashDifficulty;
     }
 }
