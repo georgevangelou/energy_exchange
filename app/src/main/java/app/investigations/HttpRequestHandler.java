@@ -3,8 +3,8 @@ package app.investigations;
 import java.net.Socket;
 
 public class HttpRequestHandler implements Runnable {
-    final static String CRLF = "\r\n";
-    Socket socket;
+    protected final static String CRLF = "\r\n";
+    private Socket socket;
 
     public HttpRequestHandler(Socket socket) throws Exception {
         this.socket = socket;
@@ -121,5 +121,9 @@ public class HttpRequestHandler implements Runnable {
             return "audio/x-pn-realaudio";
         }
         return "application/octet-stream";
+    }
+
+    public Socket getSocket() {
+        return socket;
     }
 }
