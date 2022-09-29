@@ -1,11 +1,16 @@
 package app.agents;
 
+import app.investigations.Message;
+import app.investigations.PeerNode;
 import app.properties.*;
+import app.utilities.UUIDGenerator;
 import com.google.gson.Gson;
-import org.checkerframework.checker.units.qual.A;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 
@@ -16,8 +21,10 @@ import java.util.Random;
  * o   Update stored blockchain (i.e., replace chain)
  * o   Submit energy offer to smart contract
  */
-public class Producer {
-    private List<String> portsOfOtherPeers = new ArrayList<>();//TODO: Get somehow
+public class Producer extends PeerNode {
+    private final Logger LOGGER = LoggerFactory.getLogger(PeerNode.class.getName());
+    private final long TIMEOUT = 10_000;
+    private List<Integer> portsOfOtherPeers = new ArrayList<>();//TODO: Get somehow
     private Random random = new Random();
 
     private RecentActivity recentActivity = new RecentActivity();
@@ -29,7 +36,9 @@ public class Producer {
     private Activity activity;
 
 
-    public Producer() {
+    public Producer(int port) {
+        super(port);
+
         blockchain.add(new BidTransactionBlock(
                 "0",
                 0,
@@ -64,12 +73,12 @@ public class Producer {
     }
 
     private void updateBlockChain() {
-        for (String peerPort : portsOfOtherPeers) {
+        for (int peerPort : portsOfOtherPeers) {
             updateBlockChainFromPeer(peerPort);
         }
     }
 
-    private void updateBlockChainFromPeer(String peerPort) {
+    private void updateBlockChainFromPeer(int peerPort) {
         Status statusOfOtherPeer = askOtherPeerForStatus(peerPort);
         if (statusOfOtherPeer.getTotalHashDifficulty() > this.status.getTotalHashDifficulty()) {
             Blockchain otherPeerBlockchain = askOtherPeerForBlockchain(peerPort);
@@ -81,12 +90,50 @@ public class Producer {
     }
 
 
-    private Status askOtherPeerForStatus(String portOfPeerToAsk) {
-        //TODO: iterate through the peers and ask them for their statuses
+    private Status askOtherPeerForStatus(int portOfPeerToAsk) {
+        try {
+            String requestId = UUIDGenerator.generateUUID();
+            Message message = new Message(requestId, "", this.getPort());
+            sendRequest("localhost", portOfPeerToAsk, message.toJson());
+            Optional<Message> optionalMessage = pollForResponse(requestId);
+            if (optionalMessage.isPresent()) {
+                Message parsedMessage = optionalMessage.get();
+                Status statusReceived = new Gson().fromJson(parsedMessage.getJsonData(), Status.class);
+                return statusReceived;
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
         return null;
     }
 
-    private Blockchain askOtherPeerForBlockchain(String portOfPeerToAsk) {
+    private Optional<Message> pollForResponse(String requestId) throws InterruptedException {
+        Optional<Message> optReceivedMessage = Optional.empty();
+        long start = System.currentTimeMillis();
+
+        while ((optReceivedMessage = getMatchingResponse(requestId)).isEmpty()) {
+            if (System.currentTimeMillis() - start > TIMEOUT) {
+                LOGGER.warn("Did not receive response after ms: " + TIMEOUT);
+                break;
+            }
+            Thread.sleep(300);
+        }
+        return optReceivedMessage;
+    }
+
+    private Optional<Message> getMatchingResponse(String requestId) {
+        Gson gson = new Gson();
+        List<String> receivedMessages = getReceivedMessages();
+        for (String receivedMessage : receivedMessages) {
+            Message b = gson.fromJson(receivedMessage, Message.class);
+            if (b.getId().equals(requestId)) {
+                return Optional.of(b);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Blockchain askOtherPeerForBlockchain(int portOfPeerToAsk) {
         //TODO: ask peer for blockchain
         //TODO: Deserialize it
         return null;
@@ -100,7 +147,7 @@ public class Producer {
     }
 
 
-    private void processIncomingWriteBlockMessage(String peerAddress, String peerPort, String writeBlockMessage) {
+    private void processIncomingWriteBlockMessage(String peerAddress, int peerPort, String writeBlockMessage) {
         // TODO: get block from message
         //   Message message = new Gson().fromJson(writeBlockMessage, Message.class);
         //   Block block = message.getBlock();

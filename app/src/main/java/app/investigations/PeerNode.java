@@ -2,6 +2,8 @@ package app.investigations;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -9,13 +11,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PeerNode {
+    private final Logger LOGGER = LoggerFactory.getLogger(PeerNode.class.getName());
     private int port;
     private ArrayList<PeerNode> contacts;
     private PeerNode preNode;
     private PeerNode postNode;
-    ServerSocket server;
+    private List<String> receivedMessages = new ArrayList<>();
+    private ServerSocket server;
     private String directoryLocation = "";
 
     public PeerNode(int port) {
@@ -32,14 +37,13 @@ public class PeerNode {
     }
 
 
-    public void sendRequest(String host, int targetPort, JsonObject json) throws IOException {
+    public void sendRequest(String host, int targetPort, String content) throws IOException {
         Socket socket = new Socket(host, targetPort);//machine name, port number
         OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
-        System.out.println("\nThis is my port: " + this.port);
-        System.out.println("Sending to port: " + targetPort);
+        LOGGER.debug("This is my port: " + this.port);
+        LOGGER.debug("Sending to port: " + targetPort);
 
-        String content = json.toString();
-        System.out.println("My content is: " + content);
+        LOGGER.debug("My content is: " + content);
         out.write(content);
 //        sendRequest("localhost", arrayOfNodes.get(0).getPort())
 
@@ -52,7 +56,7 @@ public class PeerNode {
             // Establish the listen socket.
             this.server = new ServerSocket(this.port);
             this.port = server.getLocalPort();
-            System.out.println("listening on port " + this.port);
+            LOGGER.debug("listening on port " + this.port);
             acceptRequests();
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,12 +73,13 @@ public class PeerNode {
                 HttpRequestHandler request = new HttpRequestHandler(connection);
                 String content = new String(request.socket.getInputStream().readAllBytes());
                 JsonObject json = new JsonParser().parse(content).getAsJsonObject();
+                receivedMessages.add(json.toString());
 
-                System.out.println("\nThis is my port: " + connection.getLocalPort());
-                System.out.println("Received from port: " + this.port);
+                LOGGER.debug("\nThis is my port: " + connection.getLocalPort());
+                LOGGER.debug("Received from port: " + this.port);
 
-                System.out.println("I received type: " + json.get("type"));
-                System.out.println("I received index: " + json.get("index"));
+//                System.out.println("I received type: " + json.get("type"));
+//                System.out.println("I received index: " + json.get("index"));
                 // Create a new thread to process the request.
 //                Thread thread = new Thread(request);
 
@@ -85,5 +90,10 @@ public class PeerNode {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    public List<String> getReceivedMessages() {
+        return receivedMessages;
     }
 }
