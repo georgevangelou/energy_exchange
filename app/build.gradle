@@ -22,8 +22,9 @@ version = '1.2.1'
 
 
 repositories {
-    // Use Maven Central for resolving dependencies.
+    mavenLocal()
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -31,7 +32,10 @@ dependencies {
 
     implementation 'com.google.guava:guava:30.1.1-jre'
 
+    implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation 'org.slf4j:slf4j-simple:1.7.30'
+//    implementation 'org.apache.logging.log4j:log4j-slf4j-impl: 2.13.3'
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
 
     implementation 'com.google.guava:guava:30.0-android'
     compileOnly 'org.immutables:value:2.9.2'
