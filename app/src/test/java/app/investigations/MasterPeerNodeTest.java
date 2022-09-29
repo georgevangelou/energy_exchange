@@ -27,13 +27,13 @@ public class MasterPeerNodeTest {
             json = new JsonObject();
             json.addProperty("type", "r01");
             json.addProperty("index", i++);
-            arrayOfNodes.get(0).sendRequest("localhost", arrayOfNodes.get(1).getPort(), json.toString());
+            arrayOfNodes.get(0).sendMessage("localhost", arrayOfNodes.get(1).getPort(), json.toString());
             Thread.sleep(500);
 
             json = new JsonObject();
             json.addProperty("type", "r01");
             json.addProperty("index", i++);
-            arrayOfNodes.get(1).sendRequest("localhost", arrayOfNodes.get(0).getPort(), json.toString());
+            arrayOfNodes.get(1).sendMessage("localhost", arrayOfNodes.get(0).getPort(), json.toString());
             Thread.sleep(500);
         }
     }
