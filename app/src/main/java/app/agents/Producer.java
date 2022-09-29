@@ -86,12 +86,15 @@ public class Producer extends PeerNode {
 
 
     private void updateBlockChainFromPeer(int peerPort) {
-        Status statusOfOtherPeer = askOtherPeerForStatus(peerPort);
+        Status statusOfOtherPeer = askOtherPeerForStatus(peerPort);//read_request(status object)
         if (statusOfOtherPeer == null) {
             return;
         }
+        //[self.status.total_difficulty < client.status.total_difficulty]
         if (statusOfOtherPeer.getTotalHashDifficulty() > this.status.getTotalHashDifficulty()) {
+            //read_request(block object linked list)
             Blockchain otherPeerBlockchain = askOtherPeerForBlockchain(peerPort);
+            //[received block object linked list is valid]
             if (otherPeerBlockchain != null && otherPeerBlockchain.isValid()) {
                 replaceBlockchain(otherPeerBlockchain);
             }
@@ -126,7 +129,7 @@ public class Producer extends PeerNode {
                 LOGGER.warn("Did not receive response after ms: " + TIMEOUT);
                 break;
             }
-            Thread.sleep(300);
+            Thread.sleep(200);
         }
         return optReceivedMessage;
     }
@@ -134,11 +137,14 @@ public class Producer extends PeerNode {
 
     private Optional<Message> getMatchingResponse(String requestId) {
         Gson gson = new Gson();
-        List<String> receivedMessages = getReceivedMessages();
+        List<String> receivedMessages = getReceivedResponses();
         for (String receivedMessage : receivedMessages) {
-            Message b = gson.fromJson(receivedMessage, Message.class);
-            if (b.getId().equals(requestId)) {
-                return Optional.of(b);
+            Message parsedMessage = gson.fromJson(receivedMessage, Message.class);
+            if (parsedMessage.getId().equals(requestId)) {
+                LOGGER.error("Should be true: " + getReceivedResponses().contains(receivedMessage));
+                getReceivedResponses().remove(receivedMessage);
+                LOGGER.error("Should be false: " + getReceivedResponses().contains(receivedMessage));
+                return Optional.of(parsedMessage);
             }
         }
         return Optional.empty();
@@ -170,19 +176,17 @@ public class Producer extends PeerNode {
     }
 
 
-    private void processIncomingWriteBlockMessage(String peerAddress, int peerPort, String writeBlockMessage) {
-        // TODO: get block from message
-        //  Message message = new Gson().fromJson(writeBlockMessage, Message.class);
-        //  Block block = message.getBlock();
-        Block block = new Gson().fromJson(writeBlockMessage, Block.class);
+    private void processIncomingWriteBlockMessage(String peerAddress, Message writeBlockMessage) {
+        Block block = new Gson().fromJson(writeBlockMessage.getJsonData(), Block.class);//validate_received_block_object() -> Sequence diagram
         if (block.getIndex() != this.blockchain.getLast().getIndex() + 1) {
-            updateBlockChainFromPeer(peerPort);
-        } else {
-            if (block.isValid()) {
-                addNewBlock(block);
-                this.recentActivity.add(new Activity(block.getHash(), peerAddress, Activity.DIRECTION.FROM));
-            }
+            updateBlockChainFromPeer(writeBlockMessage.getOriginPort());
         }
+        //[received_block is valid]
+        else if (block.isValid()) {
+            addNewBlock(block);
+            this.recentActivity.add(new Activity(block.getHash(), peerAddress, Activity.DIRECTION.FROM));
+        }
+
     }
 
 
@@ -196,11 +200,11 @@ public class Producer extends PeerNode {
                 HttpRequestHandler request = new HttpRequestHandler(connection);
                 String content = new String(request.getSocket().getInputStream().readAllBytes());
                 JsonObject json = new JsonParser().parse(content).getAsJsonObject();
-                receivedMessages.add(json.toString());
 
                 Gson gson = new Gson();
                 Message message = gson.fromJson(json, Message.class);
                 switch (message.getType()) {
+                    // The other peer wants to know our status
                     case MessageType.STATUS: {
                         String myStatus = gson.toJson(this.status);
                         String myMessage = new Message(
@@ -211,6 +215,7 @@ public class Producer extends PeerNode {
                         sendMessage("localhost", message.getOriginPort(), myMessage);
                         break;
                     }
+                    // The other peer wants to know our blockchain
                     case MessageType.BLOCKCHAIN: {
                         String myBlockchain = gson.toJson(this.blockchain);
                         String myMessage = new Message(
@@ -221,8 +226,15 @@ public class Producer extends PeerNode {
                         sendMessage("localhost", message.getOriginPort(), myMessage);
                         break;
                     }
+                    // The other peer gives us a response we had requested. It will not be processed here.
                     case MessageType.RESPONSE: {
                         LOGGER.info("Received response: " + message.toJson());
+                        receivedResponses.add(json.toString());
+                        break;
+                    }
+                    // The other peer gives us a new block
+                    case MessageType.RECEIVED_BLOCK: {
+                        processIncomingWriteBlockMessage("localhost", message);
                         break;
                     }
                     default: {
@@ -250,6 +262,11 @@ public class Producer extends PeerNode {
         if (this.blockchain.getDifficulty() != this.status.getTotalHashDifficulty()) {
             throw new RuntimeException("Difficulties do not match");
         }
+
+        // Not done, but not necessary in our case due to everybody knowing anybody
+        //[Activity(client.address, received_block.hash) not in circular queue]
+        //Assuming Essent producerapplication thread interactionnot in queue
+        //write_request(received_block)
     }
 
 

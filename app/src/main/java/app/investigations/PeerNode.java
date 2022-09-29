@@ -15,7 +15,7 @@ public abstract class PeerNode {
     private final Logger LOGGER = LoggerFactory.getLogger(PeerNode.class.getName());
     private int port = 0;
     private List<PeerNode> contacts = new ArrayList<>();
-    protected List<String> receivedMessages = new ArrayList<>();
+    protected List<String> receivedResponses = new ArrayList<>();
     protected ServerSocket server;
 
 
@@ -60,7 +60,7 @@ public abstract class PeerNode {
 
     protected abstract void acceptRequests();
 
-    public List<String> getReceivedMessages() {
-        return receivedMessages;
+    public List<String> getReceivedResponses() {
+        return receivedResponses;
     }
 }
