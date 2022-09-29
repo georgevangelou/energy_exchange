@@ -8,8 +8,8 @@ public class RefundTransactionBlock extends Block {
     private int coinAmount;
     private byte[] signature;
 
-    public RefundTransactionBlock(String previousBlockHash, String receiverAddress, String publicKeySender, String publicKeyReceiver, int hashDifficulty, int coinAmount, byte[] signature, long timestamp, int index) {
-        super(previousBlockHash, hashDifficulty, timestamp, index);
+    public RefundTransactionBlock(String previousBlockHash, String receiverAddress, String publicKeySender, String publicKeyReceiver, int hashDifficulty, int coinAmount, byte[] signature, int index) {
+        super(previousBlockHash, hashDifficulty, index);
         this.receiverAddress = receiverAddress;
         this.publicKeySender = publicKeySender;
         this.publicKeyReceiver = publicKeyReceiver;

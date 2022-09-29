@@ -11,8 +11,8 @@ public class PayTransactionBlock extends Block {
     private long deadline;
     private byte[] signature;
 
-    public PayTransactionBlock(String previousBlockHash, String receiverAddress, String publicKeySender, String publicKeyReceiver, int hashDifficulty, int coinAmount, int energyAmountToEmit, long deadline, long timestamp, byte[] signature, int index) {
-        super(previousBlockHash, hashDifficulty, timestamp, index);
+    public PayTransactionBlock(String previousBlockHash, String receiverAddress, String publicKeySender, String publicKeyReceiver, int hashDifficulty, int coinAmount, int energyAmountToEmit, long deadline, byte[] signature, int index) {
+        super(previousBlockHash, hashDifficulty, index);
         this.receiverAddress = receiverAddress;
         this.publicKeySender = publicKeySender;
         this.publicKeyReceiver = publicKeyReceiver;
