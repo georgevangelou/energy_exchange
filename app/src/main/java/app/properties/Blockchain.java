@@ -5,6 +5,13 @@ import app.utilities.StringUtil;
 import java.util.LinkedList;
 
 public class Blockchain extends LinkedList<Block> {
+    public int getDifficulty() {
+        int difficulty = 0;
+        for (Block block : this) {
+            difficulty += block.getHashDifficulty();
+        }
+        return difficulty;
+    }
 
     public boolean isValid() {
         for (Block block : this) {
