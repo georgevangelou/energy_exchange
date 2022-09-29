@@ -6,7 +6,7 @@ import com.google.gson.Gson;
 
 import java.util.Date;
 
-public abstract class Block {
+public class Block {
     private String hash;
     private String previousBlockHash;
     private int hashDifficulty;
@@ -14,7 +14,7 @@ public abstract class Block {
     private int index;
 
 
-    public Block(String previousBlockHash, int hashDifficulty, int index) {
+    protected Block(String previousBlockHash, int hashDifficulty, int index) {
         this.previousBlockHash = previousBlockHash;
         this.hashDifficulty = hashDifficulty; // TODO: we should calculate it somehow
         this.timestamp = new Date().getTime();
