@@ -35,13 +35,12 @@ dependencies {
 
     implementation 'org.apache.logging.log4j:log4j-api:2.19.0'
     implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
+    implementation 'org.slf4j:slf4j-simple:1.7.30'
 
     implementation 'com.google.guava:guava:30.0-android'
     compileOnly 'org.immutables:value:2.9.2'
 
     implementation 'org.apache.commons:commons-collections4:4.3'
-
-    implementation 'org.slf4j:slf4j-simple:1.7.30'
 
     implementation 'org.apache.httpcomponents:httpcore:4.4.1'
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
