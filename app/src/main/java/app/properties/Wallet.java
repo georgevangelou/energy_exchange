@@ -1,9 +1,14 @@
 package app.properties;
 
+import app.utilities.AsymmetricKeyPairGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 
 public class Wallet {
+    private final Logger LOGGER = LoggerFactory.getLogger(Wallet.class.getName());
     private int coinBalance;
     private PublicKey publicKey;
     private PrivateKey privateKey;
@@ -17,17 +22,11 @@ public class Wallet {
 
     public void generateKeyPair() {
         try {
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("ECDSA", "BC");
-            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-            ECGenParameterSpec ecSpec = new ECGenParameterSpec("prime192v1");
-            // Initialize the key generator and generate a KeyPair
-            keyGen.initialize(ecSpec, random); //256
-            KeyPair keyPair = keyGen.generateKeyPair();
-            // Set the public and private keys from the keyPair
+            KeyPair keyPair = AsymmetricKeyPairGenerator.generateRSAKeyPair();
             this.privateKey = keyPair.getPrivate();
             this.publicKey = keyPair.getPublic();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            LOGGER.error(e.getMessage());
         }
     }
 }
