@@ -54,7 +54,7 @@ public abstract class PeerNode {
             LOGGER.debug("listening on port " + this.port);
             acceptRequests();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Exception thrown: ", e);
         }
     }
 

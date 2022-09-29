@@ -26,7 +26,7 @@ public class Wallet {
             this.privateKey = keyPair.getPrivate();
             this.publicKey = keyPair.getPublic();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Exception thrown: ", e);
         }
     }
 }
