@@ -6,10 +6,9 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static app.investigations.MasterClientServer.createNodes;
-import static org.junit.Assert.*;
+import static app.investigations.MasterPeerNode.createNodes;
 
-public class MasterClientServerTest {
+public class MasterPeerNodeTest {
 
     @Test
     public void jsonSerializeDeserialize() throws InterruptedException, IOException {
