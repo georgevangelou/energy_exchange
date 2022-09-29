@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PeerNode {
@@ -59,7 +60,7 @@ public class PeerNode {
             LOGGER.debug("listening on port " + this.port);
             acceptRequests();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -75,15 +76,8 @@ public class PeerNode {
                 JsonObject json = new JsonParser().parse(content).getAsJsonObject();
                 receivedMessages.add(json.toString());
 
-                LOGGER.debug("\nThis is my port: " + connection.getLocalPort());
-                LOGGER.debug("Received from port: " + this.port);
-
-//                System.out.println("I received type: " + json.get("type"));
-//                System.out.println("I received index: " + json.get("index"));
                 // Create a new thread to process the request.
 //                Thread thread = new Thread(request);
-
-                // Start the thread.
 //                thread.start();
 //                System.out.println("Thread started for " + this.port);
             }
