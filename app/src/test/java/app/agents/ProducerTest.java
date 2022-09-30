@@ -19,7 +19,7 @@ public class ProducerTest {
     }
 
     @Test
-    public void twoProducersCheckTheirStatuses() {
+    public void twoProducersEnterTheNetwork() {
         Producer p1 = new Producer(0);
         Producer p2 = new Producer(0);
 
@@ -74,7 +74,37 @@ public class ProducerTest {
 
 
     @Test
-    public void producerReceivesBlock() throws InterruptedException {
+    public void oneProducerSendsNewBlockAndAnotherProducerInsertsItInItsBlockchain() throws InterruptedException {
+        Producer p1 = new Producer(0);
+        Producer p2 = new Producer(0);
+
+        p1.getPortsOfOtherPeers().add(p2.getPort());
+        p2.getPortsOfOtherPeers().add(p1.getPort());
+
+        Blockchain chain1 = new Blockchain();
+        Blockchain chain2 = new Blockchain();
+
+        Block b0 = new BidTransactionBlock("0", 5, 0, "0",
+                "0", "0", 1, 2,
+                3, new byte[0]);
+
+        chain1.add(b0);
+        chain2.add(b0);
+
+        p1.replaceBlockchain(chain1);
+        p2.replaceBlockchain(chain2);
+        Thread.sleep(1_000);
+        p1.generateAndBroadcastBlock();
+        Thread.sleep(1_000);
+
+        LOGGER.info("P1 blockchain: " + p1.getBlockchain().size());
+        LOGGER.info("P2 blockchain: " + p2.getBlockchain().size());
+        Assert.assertEquals( p1.getBlockchain().size(),  p2.getBlockchain().size());
+    }
+
+
+    @Test
+    public void oneProducerSendsNewBlockAndAnotherProducerNeedsFullBlockchainUpdate() throws InterruptedException {
         Producer p1 = new Producer(0);
         Producer p2 = new Producer(0);
 
@@ -92,14 +122,9 @@ public class ProducerTest {
                 "0", "0", 1, 2,
                 3, new byte[0]);
 
-        Block b2 = new BidTransactionBlock(b1.getHash(), 5, 2, "0",
-                "0", "0", 1, 2,
-                3, new byte[0]);
-
         chain1.add(b0);
         chain2.add(b0);
         chain1.add(b1);
-//        chain1.add(b2);
 
         p1.replaceBlockchain(chain1);
         p2.replaceBlockchain(chain2);
