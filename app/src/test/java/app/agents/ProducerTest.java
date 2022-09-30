@@ -4,6 +4,7 @@ import app.properties.BidTransactionBlock;
 import app.properties.Block;
 import app.properties.Blockchain;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class ProducerTest {
 
 
     @Test
-    public void oneProducerUpdatesStatusFromAnother() {
+    public void oneProducerUpdatesStatusAndBlockchainFromAnother() {
         Producer p1 = new Producer(0);
         Producer p2 = new Producer(0);
 
@@ -49,16 +50,16 @@ public class ProducerTest {
 
         Blockchain chain = new Blockchain();
 
-        Block b1 = new BidTransactionBlock("0", 5, 0, "0",
+        Block b0 = new BidTransactionBlock("0", 5, 0, "0",
                 "0", "0", 1, 2,
                 3, new byte[0]);
 
-        Block b2 = new BidTransactionBlock(b1.getHash(), 5, 0, "0",
+        Block b1 = new BidTransactionBlock(b0.getHash(), 5, 1, "0",
                 "0", "0", 1, 2,
                 3, new byte[0]);
 
+        chain.add(b0);
         chain.add(b1);
-        chain.add(b2);
 
         p1.replaceBlockchain(chain);
         LOGGER.info("Producer 1 - Hash difficulty: " + p1.getStatus().getTotalHashDifficulty());
@@ -70,6 +71,47 @@ public class ProducerTest {
         LOGGER.info("Producer 1 - Hash difficulty: " + p1.getStatus().getTotalHashDifficulty());
         LOGGER.info("Producer 2 - Hash difficulty: " + p2.getStatus().getTotalHashDifficulty());
     }
+
+
+    @Test
+    public void producerReceivesBlock() throws InterruptedException {
+        Producer p1 = new Producer(0);
+        Producer p2 = new Producer(0);
+
+        p1.getPortsOfOtherPeers().add(p2.getPort());
+        p2.getPortsOfOtherPeers().add(p1.getPort());
+
+        Blockchain chain1 = new Blockchain();
+        Blockchain chain2 = new Blockchain();
+
+        Block b0 = new BidTransactionBlock("0", 5, 0, "0",
+                "0", "0", 1, 2,
+                3, new byte[0]);
+
+        Block b1 = new BidTransactionBlock(b0.getHash(), 5, 1, "0",
+                "0", "0", 1, 2,
+                3, new byte[0]);
+
+        Block b2 = new BidTransactionBlock(b1.getHash(), 5, 2, "0",
+                "0", "0", 1, 2,
+                3, new byte[0]);
+
+        chain1.add(b0);
+        chain2.add(b0);
+        chain1.add(b1);
+//        chain1.add(b2);
+
+        p1.replaceBlockchain(chain1);
+        p2.replaceBlockchain(chain2);
+        Thread.sleep(1_000);
+        p1.generateAndBroadcastBlock();
+        Thread.sleep(1_000);
+
+        LOGGER.info("P1 blockchain: " + p1.getBlockchain().size());
+        LOGGER.info("P2 blockchain: " + p2.getBlockchain().size());
+        Assert.assertEquals( p1.getBlockchain().size(),  p2.getBlockchain().size());
+    }
+
 
 
     @After

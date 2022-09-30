@@ -1,6 +1,5 @@
 package app.agents;
 
-import app.investigations.HttpRequestHandler;
 import app.investigations.PeerNode;
 import app.messages.Message;
 import app.messages.MessageType;
@@ -9,6 +8,7 @@ import app.utilities.UUIDGenerator;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,12 @@ public class Producer extends PeerNode {
 
     public Producer(int port) {
         super(port);
-//
+        this.status = new Status(0);
+        this.addGenesisBlock();
+        this.updateBlockChain();
+    }
+
+    private void addGenesisBlock() {
 //        blockchain.add(new BidTransactionBlock(
 //                "0",
 //                0,
@@ -56,9 +61,6 @@ public class Producer extends PeerNode {
 //                0,
 //                new byte[0])
 //        );
-
-        this.status = new Status(0);
-        this.updateBlockChain();
     }
 
 
@@ -125,8 +127,9 @@ public class Producer extends PeerNode {
         long start = System.currentTimeMillis();
 
         while ((optReceivedMessage = getMatchingResponse(requestId)).isEmpty()) {
+//            LOGGER.info("Waiting to get status");
             if (System.currentTimeMillis() - start > TIMEOUT) {
-                LOGGER.warn("Did not receive response after ms: " + TIMEOUT);
+//                LOGGER.warn("Did not receive response after ms: " + TIMEOUT);
                 break;
             }
             Thread.sleep(200);
@@ -141,9 +144,7 @@ public class Producer extends PeerNode {
         for (String receivedMessage : receivedMessages) {
             Message parsedMessage = gson.fromJson(receivedMessage, Message.class);
             if (parsedMessage.getId().equals(requestId)) {
-                LOGGER.error("Should be true: " + getReceivedResponses().contains(receivedMessage));
                 getReceivedResponses().remove(receivedMessage);
-                LOGGER.error("Should be false: " + getReceivedResponses().contains(receivedMessage));
                 return Optional.of(parsedMessage);
             }
         }
@@ -186,7 +187,6 @@ public class Producer extends PeerNode {
             addNewBlock(block);
             this.recentActivity.add(new Activity(block.getHash(), peerAddress, Activity.DIRECTION.FROM));
         }
-
     }
 
 
@@ -195,60 +195,66 @@ public class Producer extends PeerNode {
             while (true) {
                 // Listen for a TCP connection request.
                 Socket connection = this.server.accept();
-
-                // Construct an object to process the HTTP request message.
-                HttpRequestHandler request = new HttpRequestHandler(connection);
-                String content = new String(request.getSocket().getInputStream().readAllBytes());
-                JsonObject json = new JsonParser().parse(content).getAsJsonObject();
-
-                Gson gson = new Gson();
-                Message message = gson.fromJson(json, Message.class);
-                switch (message.getType()) {
-                    // The other peer wants to know our status
-                    case MessageType.STATUS: {
-                        String myStatus = gson.toJson(this.status);
-                        String myMessage = new Message(
-                                message.getId()
-                                , MessageType.RESPONSE
-                                , myStatus
-                                , this.getPort()).toJson();
-                        sendMessage("localhost", message.getOriginPort(), myMessage);
-                        break;
-                    }
-                    // The other peer wants to know our blockchain
-                    case MessageType.BLOCKCHAIN: {
-                        String myBlockchain = gson.toJson(this.blockchain);
-                        String myMessage = new Message(
-                                message.getId()
-                                , MessageType.RESPONSE
-                                , myBlockchain
-                                , this.getPort()).toJson();
-                        sendMessage("localhost", message.getOriginPort(), myMessage);
-                        break;
-                    }
-                    // The other peer gives us a response we had requested. It will not be processed here.
-                    case MessageType.RESPONSE: {
-                        LOGGER.info("Received response: " + message.toJson());
-                        receivedResponses.add(json.toString());
-                        break;
-                    }
-                    // The other peer gives us a new block
-                    case MessageType.RECEIVED_BLOCK: {
-                        processIncomingWriteBlockMessage("localhost", message);
-                        break;
-                    }
-                    default: {
-                        LOGGER.warn("Not implemented. Message: " + message.toJson());
-                        break;
-                    }
-                }
                 // Create a new thread to process the request.
-//                Thread thread = new Thread(request);
-//                thread.start();
-//                System.out.println("Thread started for " + this.port);
+                Thread thread = new Thread(() -> processRequest(connection));
+                thread.start();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception thrown: ", e);
+        }
+    }
+
+
+    private void processRequest(Socket connection) {
+        try {
+            LOGGER.info("PortA: " + this.getPort());
+
+            // Construct an object to process the HTTP request message.
+            String content = new String(connection.getInputStream().readAllBytes());
+            JsonObject json = new JsonParser().parse(content).getAsJsonObject();
+            Gson gson = new Gson();
+            Message message = gson.fromJson(json, Message.class);
+            switch (message.getType()) {
+                // The other peer wants to know our status
+                case MessageType.STATUS: {
+                    String myStatus = gson.toJson(this.status);
+                    String myMessage = new Message(
+                            message.getId()
+                            , MessageType.RESPONSE
+                            , myStatus
+                            , this.getPort()).toJson();
+                    sendMessage("localhost", message.getOriginPort(), myMessage);
+                    break;
+                }
+                // The other peer wants to know our blockchain
+                case MessageType.BLOCKCHAIN: {
+                    String myBlockchain = gson.toJson(this.blockchain);
+                    String myMessage = new Message(
+                            message.getId()
+                            , MessageType.RESPONSE
+                            , myBlockchain
+                            , this.getPort()).toJson();
+                    sendMessage("localhost", message.getOriginPort(), myMessage);
+                    break;
+                }
+                // The other peer gives us a response we had requested. It will not be processed here.
+                case MessageType.RESPONSE: {
+                    LOGGER.info("Received response: " + message.toJson());
+                    receivedResponses.add(json.toString());
+                    break;
+                }
+                // The other peer gives us a new block
+                case MessageType.RECEIVED_BLOCK: {
+                    processIncomingWriteBlockMessage("localhost", message);
+                    break;
+                }
+                default: {
+                    LOGGER.warn("Not implemented. Message: " + message.toJson());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception: ", e);
         }
     }
 
@@ -270,6 +276,35 @@ public class Producer extends PeerNode {
     }
 
 
+    public void generateAndBroadcastBlock() {
+        // When this producer has an offer, he decides to create a block and broadcast it to its other peers.
+
+
+        // Build block
+        Block myNewBlock = new BidTransactionBlock(
+                this.blockchain.getLast().getHash(), 5, this.blockchain.size(), "0",
+                Hex.encodeHexString(this.wallet.getPublicKey().getEncoded()), "0", 1, generateExpectedEnergyProduction(),
+                generateEnergyUnitPrice(), new byte[0]);
+
+        addNewBlock(myNewBlock);
+
+        // Broadcast it
+        broadcastBlock(myNewBlock);
+    }
+
+
+    public void broadcastBlock(Block block) {
+        Message message = new Message(UUIDGenerator.generateUUID(), MessageType.RECEIVED_BLOCK, block.toJson(), this.getPort());
+        for (int port : this.portsOfOtherPeers) {
+            try {
+                sendMessage("localhost", port, message.toJson());
+            } catch (Exception e) {
+                LOGGER.error("Exception thrown: ", e);
+            }
+        }
+    }
+
+
     public void replaceBlockchain(Blockchain newBlockchain) {
         this.blockchain = newBlockchain;
         this.status = new Status(this.blockchain.getDifficulty());
@@ -283,5 +318,9 @@ public class Producer extends PeerNode {
 
     public List<Integer> getPortsOfOtherPeers() {
         return portsOfOtherPeers;
+    }
+
+    public Blockchain getBlockchain() {
+        return blockchain;
     }
 }
