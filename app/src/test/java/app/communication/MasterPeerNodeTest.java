@@ -1,4 +1,4 @@
-package app.investigations;
+package app.communication;
 
 import com.google.gson.JsonObject;
 import org.junit.Test;
@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static app.investigations.MasterPeerNode.createNodes;
+import static app.communication.MasterPeerNode.createNodes;
 
 public class MasterPeerNodeTest {
     private final Logger LOGGER = LoggerFactory.getLogger(MasterPeerNodeTest.class.getName());

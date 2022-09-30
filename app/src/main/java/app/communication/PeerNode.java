@@ -1,4 +1,4 @@
-package app.investigations;
+package app.communication;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

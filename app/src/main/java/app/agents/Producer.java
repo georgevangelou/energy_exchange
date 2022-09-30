@@ -1,6 +1,6 @@
 package app.agents;
 
-import app.investigations.PeerNode;
+import app.communication.PeerNode;
 import app.messages.Message;
 import app.messages.MessageType;
 import app.properties.*;

@@ -1,4 +1,4 @@
-package app.investigations;
+package app.communication;
 
 import java.util.ArrayList;
 

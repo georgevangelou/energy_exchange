@@ -1,4 +1,4 @@
-package app.investigations;
+package app.communication;
 
 import java.io.IOException;
 import java.net.ServerSocket;
