@@ -35,12 +35,12 @@ public abstract class PeerNode {
     public void sendMessage(String host, int targetPort, String content) throws IOException {
         Socket socket = new Socket(host, targetPort);//machine name, port number
         OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
-        LOGGER.debug("This is my port: " + this.port);
-        LOGGER.debug("Sending to port: " + targetPort);
+//        LOGGER.debug("This is my port: " + this.port);
+//        LOGGER.debug("Sending to port: " + targetPort);
 
-        LOGGER.debug("My content is: " + content);
+//        LOGGER.debug("My content is: " + content);
         out.write(content);
-//        sendRequest("localhost", arrayOfNodes.get(0).getPort())
+        LOGGER.info("From: " + this.port + ", To: " + targetPort + "\nSent message: " + content);
 
         out.close();
         socket.close();
