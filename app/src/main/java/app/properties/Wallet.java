@@ -20,7 +20,7 @@ public class Wallet {
     }
 
 
-    public void generateKeyPair() {
+    private void generateKeyPair() {
         try {
             KeyPair keyPair = AsymmetricKeyPairGenerator.generateRSAKeyPair();
             this.privateKey = keyPair.getPrivate();
@@ -28,5 +28,13 @@ public class Wallet {
         } catch (Exception e) {
             LOGGER.error("Exception thrown: ", e);
         }
+    }
+
+    public PublicKey getPublicKey() {
+        return publicKey;
+    }
+
+    public PrivateKey getPrivateKey() {
+        return privateKey;
     }
 }
